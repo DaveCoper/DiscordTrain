@@ -10,8 +10,8 @@
 
         public double AnimatorUpdateIntervalInMs { get; set; } = 250;
 
-        public int EmergencyStopLenghtInNumberOfTicks { get; set; } = 20;
+        public int EmergencyStopLenghtInNumberOfTicks { get; set; } = 40;
 
-        public int StopLenghtInNumberOfTicks { get; set; } = 4;
+        public int StopLenghtInNumberOfTicks { get; set; } = 10;
     }
 }

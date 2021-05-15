@@ -31,7 +31,7 @@ namespace DiscordTrain
         public double DesiredSpeed
         {
             get => desiredSpeed;
-            set => desiredSpeed = Math.Max(-1.0, Math.Min(1.0, value));
+            set => desiredSpeed = Math.Max(-100.0, Math.Min(100.0, value));
         }
 
         public double CurrentSpeed { get; private set; }
@@ -61,7 +61,7 @@ namespace DiscordTrain
                 timer = null;
             }
 
-            SetPwmCycle(0);
+            this.controllerConnector.SetSpeed(0);
         }
 
         private void Animate(object state)
@@ -97,10 +97,10 @@ namespace DiscordTrain
                 nextSpeed = currentSpeed + options.SpeedChangeInTick;
             }
 
-            if ((currentSpeed > 0 && nextSpeed < 0) || (currentSpeed < 0 && nextSpeed > 0))
+            if ((currentSpeed > 0 && nextSpeed <= 0) || (currentSpeed < 0 && nextSpeed >= 0))
             {
                 nextSpeed = 0;
-                cooldown = options.EmergencyStopLenghtInNumberOfTicks;
+                cooldown = options.StopLenghtInNumberOfTicks;
             }
 
             SetSpeed(nextSpeed);
@@ -109,32 +109,23 @@ namespace DiscordTrain
 
         private void SetSpeed(double speed)
         {
-            if (Math.Abs(speed) < options.MinimumSpeedPercent)
+            // round numbers betwen -1 and 1 to 0.0
+            if (Math.Abs(speed) < 1)
             {
-                speed = 0;
+                this.controllerConnector.SetSpeed(0);
+                return;
             }
             else if (speed < 0)
             {
-                SetDirectionPin(false);
+                this.controllerConnector.SetDirection(false);
             }
             else if (speed > 0)
             {
-                SetDirectionPin(true);
+                this.controllerConnector.SetDirection(true);
             }
 
-            this.controllerConnector.SetSpeed(speed * 0.01);
-        }
-
-        private void SetPwmCycle(double speed)
-        {
-            logger.LogTrace("PWM duty cycle is set to {0:N2}.", speed);
-
-        }
-
-        private void SetDirectionPin(bool state)
-        {
-            logger.LogInformation("Train is going {0}.", state ? "Forward" : "Backward");
-
+            var normalizedSpeed = ((this.options.MaximumSpeedPercent - this.options.MinimumSpeedPercent) * Math.Abs(speed / 100.0) + this.options.MinimumSpeedPercent) / 100.0;
+            this.controllerConnector.SetSpeed(normalizedSpeed);
         }
 
         #region IDisposable implementation
