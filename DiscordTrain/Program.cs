@@ -65,8 +65,6 @@ namespace DiscordTrain
 
         private static CommandService CreateDiscordCommandService(IServiceProvider serviceProvider)
         {
-            var wtf = serviceProvider.GetRequiredService<ILogger<TrainSpeedModule>>();
-
             var logger = serviceProvider.GetRequiredService<ILogger<CommandService>>();
             var service = new CommandService();
             service.Log += message => LogDiscordMessage(message, logger);
