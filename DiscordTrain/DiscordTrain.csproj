@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>28cd67b2-bcc2-4461-9125-a9b74eeab479</UserSecretsId>
+    <Configurations>Debug;Release;Debug Without HW</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug Without HW'">
+    <DefineConstants>DEBUG;TRACE;TestConnector</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="2.3.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiscordTrain.ConnectorBase\DiscordTrain.ConnectorBase.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'!='Debug Without HW'">
+    <ProjectReference Include="..\DiscordTrain.RPiConnector\DiscordTrain.RPiConnector.csproj" />
+  </ItemGroup>
+
+</Project>

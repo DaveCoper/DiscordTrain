@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordTrain", "DiscordTrain\DiscordTrain.csproj", "{356B898F-4DA3-49B0-B324-7BF4D8FFE8C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordTrain.RPiConnector", "DiscordTrain.RPiConnector\DiscordTrain.RPiConnector.csproj", "{98D3410F-52F3-4056-AFFC-4AFD8209B71C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordTrain.ConnectorBase", "DiscordTrain.ConnectorBase\DiscordTrain.ConnectorBase.csproj", "{A7358B00-7879-4DF6-8560-247F1D2322B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug Without HW|Any CPU = Debug Without HW|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{356B898F-4DA3-49B0-B324-7BF4D8FFE8C0}.Debug Without HW|Any CPU.ActiveCfg = Debug Without HW|Any CPU
+		{356B898F-4DA3-49B0-B324-7BF4D8FFE8C0}.Debug Without HW|Any CPU.Build.0 = Debug Without HW|Any CPU
+		{356B898F-4DA3-49B0-B324-7BF4D8FFE8C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{356B898F-4DA3-49B0-B324-7BF4D8FFE8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{356B898F-4DA3-49B0-B324-7BF4D8FFE8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{356B898F-4DA3-49B0-B324-7BF4D8FFE8C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98D3410F-52F3-4056-AFFC-4AFD8209B71C}.Debug Without HW|Any CPU.ActiveCfg = Debug Without HW|Any CPU
+		{98D3410F-52F3-4056-AFFC-4AFD8209B71C}.Debug Without HW|Any CPU.Build.0 = Debug Without HW|Any CPU
+		{98D3410F-52F3-4056-AFFC-4AFD8209B71C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98D3410F-52F3-4056-AFFC-4AFD8209B71C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98D3410F-52F3-4056-AFFC-4AFD8209B71C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98D3410F-52F3-4056-AFFC-4AFD8209B71C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7358B00-7879-4DF6-8560-247F1D2322B4}.Debug Without HW|Any CPU.ActiveCfg = Debug Without HW|Any CPU
+		{A7358B00-7879-4DF6-8560-247F1D2322B4}.Debug Without HW|Any CPU.Build.0 = Debug Without HW|Any CPU
+		{A7358B00-7879-4DF6-8560-247F1D2322B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7358B00-7879-4DF6-8560-247F1D2322B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7358B00-7879-4DF6-8560-247F1D2322B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7358B00-7879-4DF6-8560-247F1D2322B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F36B4CA6-6A8C-4EA9-AD9E-BC637B53E893}
+	EndGlobalSection
+EndGlobal
