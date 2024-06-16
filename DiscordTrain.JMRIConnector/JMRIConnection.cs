@@ -1,14 +1,16 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
 using DiscordTrain.JMRIConnector.Messages;
+using DiscordTrain.JMRIConnector.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DiscordTrain.JMRIConnector
 {
+    /*
     public class JMRIConnection : IJMRIConnection
     {
-        private readonly JMRIConnectionOptions options;
+        private readonly JMRIOptions options;
         private readonly ClientWebSocket webSocket;
 
         private readonly IMessageSerializer messageSerializer;
@@ -19,7 +21,7 @@ namespace DiscordTrain.JMRIConnector
 
         public JMRIConnection(
             IMessageSerializer messageSerializer,
-            IOptions<JMRIConnectionOptions> options,
+            IOptions<JMRIOptions> options,
             ILogger<JMRIConnection> logger)
         {
             this.options = options.Value;
@@ -123,4 +125,5 @@ namespace DiscordTrain.JMRIConnector
             }
         }
     }
+    */
 }

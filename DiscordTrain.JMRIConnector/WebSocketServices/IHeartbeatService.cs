@@ -1,4 +1,4 @@
-﻿namespace DiscordTrain.JMRIConnector
+﻿namespace DiscordTrain.JMRIConnector.WebSocketServices
 {
     public interface IHeartbeatService
     {

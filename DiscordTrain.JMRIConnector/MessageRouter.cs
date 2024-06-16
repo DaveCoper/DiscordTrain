@@ -1,15 +1,18 @@
 ﻿using DiscordTrain.JMRIConnector.Messages;
+using DiscordTrain.JMRIConnector.Services;
+using DiscordTrain.JMRIConnector.WebSocketServices;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DiscordTrain.JMRIConnector
 {
+        /*
     public class MessageRouter : IMessageRouter
     {
         private readonly IJMRIConnection jmriConnection;
         private readonly IHeartbeatService heartbeatService;
-        private readonly IRosterStore rosterStore;
+        private readonly IRosterProvider rosterStore;
 
         private readonly ILogger<MessageRouter> logger;
 
@@ -18,7 +21,7 @@ namespace DiscordTrain.JMRIConnector
         public MessageRouter(
             IJMRIConnection jmriConnection,
             IHeartbeatService heartbeatService,
-            IRosterStore store,
+            IRosterProvider store,
             ILogger<MessageRouter> logger)
         {
             this.jmriConnection = jmriConnection;
@@ -28,7 +31,6 @@ namespace DiscordTrain.JMRIConnector
 
             this.throttles = new ConcurrentBag<IJMRIThrottle>();
         }
-
         public async ValueTask RouteMessage(JMRIMessage message)
         {
             switch (message.Type)
@@ -73,7 +75,7 @@ namespace DiscordTrain.JMRIConnector
 
             foreach (var throttle in activeThrottles)
             {
-                throttle.SetThrottleData(data);
+                throttle.UpdateThrottleData(data);
             }
         }
 
@@ -87,4 +89,5 @@ namespace DiscordTrain.JMRIConnector
             this.throttles.Add(throttle);
         }
     }
+        */
 }

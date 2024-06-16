@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging.Abstractions;
-
-using NSubstitute;
-
-using DiscordTrain.Common;
-using DiscordTrain.JMRIConnector.Messages;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using DiscordTrain.JMRIConnector.WebApiServices;
+using DiscordTrain.JMRIConnector.Services;
+using DiscordTrain.JMRIConnector.Messages;
+using DiscordTrain.JMRIConnector.WebSocketServices;
 
 namespace DiscordTrain.JMRIConnector.Tests
 {
@@ -17,44 +17,70 @@ namespace DiscordTrain.JMRIConnector.Tests
         /// <param name="trainDirection"></param>
         /// <returns></returns>
         [Test]
-        public async Task ChangeSpeed()
+        public async Task TestConnection()
         {
+            var throttleName = "TestThrottle";
             var tokenSource = new CancellationTokenSource();
-            var connection = new JMRIConnection(
-                new MessageSerializer(),
-                Options.Create(new JMRIConnectionOptions { JMRIWebServerUrl = "ws://localhost:12080/json/" }),
-                NullLogger<JMRIConnection>.Instance);
+            var httpClient = new HttpClient();
+            var serverOptions = Options.Create(new JMRIOptions { JMRIWebServerUrl = "http://localhost:12080" });
+            var serializer = new JMRIMessageSerializer();
+            var loggerFactory = new NullLoggerFactory();
 
-            var buffer = new byte[10000];
-            await connection.ConnectAsync(tokenSource.Token);
-            var messages = await connection.ReceiveMessagesAsync(buffer, tokenSource.Token);
+            var connection = new JMRIWebApiClient(
+                httpClient,
+                serializer,
+                serverOptions,
+                loggerFactory.CreateLogger<JMRIWebApiClient>());
 
-            await connection.SendAsync<RosterData>(null, tokenSource.Token);
+            var rosterService = new RosterService(connection);
+            var roster = await rosterService.GetRosterEntriesAsync(tokenSource.Token);
 
-            var rosterMessage = messages.OfType<JMRIMessage<RosterEntryData>>().FirstOrDefault();
-            while (rosterMessage == null)
+            var firstRosterEntry = roster.FirstOrDefault();
+            if (firstRosterEntry == null)
             {
-                messages = await connection.ReceiveMessagesAsync(buffer, tokenSource.Token); 
-                rosterMessage = messages.OfType<JMRIMessage<RosterEntryData>>().FirstOrDefault();
+                Assert.Fail("No roster entries found!");
+                return;
             }
 
-            var throttle = new JMRIThrottle(
-                "test",
-                rosterMessage.Data.Name,
-                connection,
-                NullLogger<JMRIThrottle>.Instance);
+            var websocket = new JMRIWebSocketClient(
+                serializer,
+                serverOptions,
+                loggerFactory.CreateLogger<JMRIWebSocketClient>());
+            
+            await websocket.InitializeAsync(tokenSource.Token);
+            var processingTask = new Thread(() => {
+                var buffer = new byte[20000];
 
-            await throttle.RefreshValuesAsync();
+                while (!tokenSource.IsCancellationRequested)
+                {
+                    websocket.ProcessMessagesAsync(buffer, tokenSource.Token)
+                        .Wait();
+                }
+            });
+            processingTask.Start();
 
-            var throttleData = messages.OfType<JMRIMessage<ThrottleData>>().FirstOrDefault();
-            while (throttleData == null)
+            var throttleService = new ThrottleService(websocket);
+
+            ThrottleData throttleData;
+            if (!string.IsNullOrEmpty(firstRosterEntry.Name))
             {
-                messages = await connection.ReceiveMessagesAsync(buffer, tokenSource.Token);
-                throttleData = messages.OfType<JMRIMessage<ThrottleData>>().FirstOrDefault();
+                throttleData = await throttleService.GetThrottleDataAsync(throttleName, firstRosterEntry.Name, tokenSource.Token);
+            }
+            else if (firstRosterEntry.Address.HasValue)
+            {
+                throttleData = await throttleService.GetThrottleDataAsync(throttleName, firstRosterEntry.Address.Value, tokenSource.Token);
+            }
+            else
+            {
+                Assert.Fail("Can identify train in roster entry!");
+                return;
             }
 
-            throttle.SetThrottleData(throttleData.Data);
+            var throttle = new JMRIThrottle(throttleName, throttleService, loggerFactory.CreateLogger<JMRIThrottle>());
+            await throttle.SetSpeedAsync(100);
 
+            Assert.That(throttle.CurrentSpeedPercent, Is.EqualTo(100));
+            tokenSource.Cancel();
         }
     }
 }

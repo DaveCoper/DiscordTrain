@@ -2,14 +2,14 @@
 
 using DiscordTrain.Common;
 using DiscordTrain.JMRIConnector.Messages;
+using DiscordTrain.JMRIConnector.Services;
 
 namespace DiscordTrain.JMRIConnector
 {
     public class JMRIThrottle : IJMRIThrottle
     {
         private readonly string name;
-        private readonly string roosterEntryName;
-        private readonly IJMRIConnection jmriConnection;
+        private readonly IThrottleService jmriConnection;
 
         private readonly ILogger<JMRIThrottle> logger;
 
@@ -19,19 +19,15 @@ namespace DiscordTrain.JMRIConnector
 
         public string Name => name;
 
-        public string RoosterEntryName => roosterEntryName;
-
         public JMRIThrottle(
             string name,
-            string roosterEntryName,
-            IJMRIConnection jmriConnection,
+            IThrottleService jmriConnection,
             ILogger<JMRIThrottle> logger)
         {
             this.CurrentSpeedPercent = 0.0;
             this.CurrentDirection = TrainDirection.Unknown;
 
             this.name = name;
-            this.roosterEntryName = roosterEntryName;
 
             this.jmriConnection = jmriConnection;
             this.logger = logger;
@@ -44,35 +40,38 @@ namespace DiscordTrain.JMRIConnector
                 throw new ArgumentOutOfRangeException(nameof(direction), "Train direction can't be set to \"Unknown\"");
             }
 
-            await this.jmriConnection.SendAsync(
+            var data = await this.jmriConnection.SetThrottleDataAsync(
                 new ThrottleData
                 {
                     Name = this.Name,
-                    RosterEntry = this.RoosterEntryName,
                     Forward = direction == TrainDirection.Forward,
-                });
+                }, CancellationToken.None);
+
+            this.UpdateThrottleData(data);
         }
 
         public async Task SetSpeedAsync(double speedPercent)
         {
-            await this.jmriConnection.SendAsync(new ThrottleData
+            var data = await this.jmriConnection.SetThrottleDataAsync(new ThrottleData
             {
                 Name = this.Name,
-                RosterEntry = this.RoosterEntryName,
                 Speed = speedPercent * 0.01,
-            });
+            }, CancellationToken.None);
+
+            this.UpdateThrottleData(data);
         }
 
         public async Task RefreshValuesAsync()
         {
-            await this.jmriConnection.SendAsync(new ThrottleData
+            var data = await this.jmriConnection.SetThrottleDataAsync(new ThrottleData
             {
                 Name = this.Name,
-                RosterEntry = this.RoosterEntryName,
-            });
+            }, CancellationToken.None);
+
+            this.UpdateThrottleData(data);
         }
 
-        public void SetThrottleData(ThrottleData trainData)
+        public void UpdateThrottleData(ThrottleData trainData)
         {
             if (trainData.Speed.HasValue)
             {
@@ -85,8 +84,6 @@ namespace DiscordTrain.JMRIConnector
                     TrainDirection.Forward :
                     TrainDirection.Backward;
             }
-
-
         }
     }
 }

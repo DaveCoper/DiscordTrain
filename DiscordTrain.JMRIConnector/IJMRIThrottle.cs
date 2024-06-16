@@ -1,6 +1,5 @@
 ﻿using DiscordTrain.Common;
 using DiscordTrain.JMRIConnector.Messages;
-using System.Xml.Linq;
 
 namespace DiscordTrain.JMRIConnector
 {
@@ -8,8 +7,6 @@ namespace DiscordTrain.JMRIConnector
     {
         public string Name { get; }
 
-        public string RoosterEntryName { get; }
-
-        void SetThrottleData(ThrottleData trainData);
+        void UpdateThrottleData(ThrottleData trainData);
     }
 }

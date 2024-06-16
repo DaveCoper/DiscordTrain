@@ -6,10 +6,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-namespace DiscordTrain.JMRIConnector
+namespace DiscordTrain.JMRIConnector.Services
 {
-    public class MessageSerializer : IMessageSerializer
+    public class JMRIMessageSerializer : IMessageSerializer
     {
+        /*
         public byte[] Serialize<TData>(TData? data)
         {
             var typeName = typeof(TData).Name;
@@ -104,6 +105,19 @@ namespace DiscordTrain.JMRIConnector
             var serializer = JsonSerializer.CreateDefault(settings);
             var message = obj.ToObject<JMRIMessage<TData>>(serializer);
             return message ?? throw new NotImplementedException();
+        }
+        */
+
+        public string Serialize<TMessage>(TMessage message)
+        {
+            var settings = GetSerializerSettings();
+            return JsonConvert.SerializeObject(message, settings);
+        }
+
+        public TOut? Deserialize<TOut>(string json)
+        {
+            var settings = GetSerializerSettings();
+            return JsonConvert.DeserializeObject<TOut>(json, settings);
         }
 
         private JsonSerializerSettings GetSerializerSettings()
