@@ -5,17 +5,17 @@ namespace DiscordTrain.ConnectorBase
     /// <summary>
     /// Base class for connector that provides input validation.
     /// </summary>
-    public abstract class ControllerConnectorBase : IControllerConnector
+    public abstract class ControllerConnectorBase : IThrottle
     {
         private double currentNormalizedDutyCycle;
 
         private bool currentlyTrainIsGoingFoward;
 
-        /// <inheritdoc cref="IControllerConnector.Initialize"/>
+        /// <inheritdoc cref="IThrottle.Initialize"/>
         public virtual void Initialize()
         { }
 
-        /// <inheritdoc cref="IControllerConnector.SetSpeed(double)"/>
+        /// <inheritdoc cref="IThrottle.SetSpeed(double)"/>
         public void SetSpeed(double normalizedDutyCycle)
         {
             if (normalizedDutyCycle < 0 || normalizedDutyCycle > 1)
@@ -28,7 +28,7 @@ namespace DiscordTrain.ConnectorBase
             }
         }
 
-        /// <inheritdoc cref="IControllerConnector.SetDirection(bool)"/>
+        /// <inheritdoc cref="IThrottle.SetDirection(bool)"/>
         public void SetDirection(bool trainIsGoingFoward)
         {
             if (currentlyTrainIsGoingFoward != trainIsGoingFoward)

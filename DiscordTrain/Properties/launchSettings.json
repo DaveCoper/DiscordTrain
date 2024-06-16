@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DiscordTrain": {
+      "commandName": "Project",
+      "commandLineArgs": "ConnectorType=JMRI"
+    }
+  }
+}
