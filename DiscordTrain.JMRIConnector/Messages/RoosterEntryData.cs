@@ -1,6 +1,8 @@
-﻿namespace DiscordTrain.JMRIConnector.Messages
+﻿using DiscordTrain.Common;
+
+namespace DiscordTrain.JMRIConnector.Messages
 {
-    public class RosterEntryData
+    public class RosterEntryData : IRosterEntry
     {
         public string? Name { get; set; }
 
@@ -25,6 +27,7 @@
         public int? MaxSpeedPct { get; set; }
 
         public string? Image { get; set; }
+
         public string? Icon { get; set; }
 
         public string? ShuntingFunction { get; set; }

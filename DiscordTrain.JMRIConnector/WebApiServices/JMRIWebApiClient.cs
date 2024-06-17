@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DiscordTrain.JMRIConnector.WebApiServices
 {
-    public class JMRIWebApiClient : IJMRIApiClient
+    public class JMRIWebApiClient : IJMRIWebApiClient
     {
         private readonly HttpClient httpClient;
         private readonly IMessageSerializer messageSerializer;
@@ -24,7 +24,7 @@ namespace DiscordTrain.JMRIConnector.WebApiServices
             this.messageSerializer = messageSerializer;
             this.logger = logger;
 
-            var url = options.Value.JMRIWebServerUrl;
+            var url = options.Value.WebServerUrl;
             if (url.EndsWith("/"))            
                 this.baseAddress = url + "json/";            
             else

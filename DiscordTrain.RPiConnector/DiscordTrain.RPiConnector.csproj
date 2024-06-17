@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DiscordTrain.Common\DiscordTrain.Common.csproj" />
     <ProjectReference Include="..\DiscordTrain.ConnectorBase\DiscordTrain.ConnectorBase.csproj" />
   </ItemGroup>
 

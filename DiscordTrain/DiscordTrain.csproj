@@ -14,14 +14,18 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="3.15.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DiscordTrain.ConnectorBase\DiscordTrain.ConnectorBase.csproj" />
     <ProjectReference Include="..\DiscordTrain.JMRIConnector\DiscordTrain.JMRIConnector.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'!='Debug Without HW'">
-    <ProjectReference Include="..\DiscordTrain.RPiConnector\DiscordTrain.RPiConnector.csproj" />
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -3,18 +3,14 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using DiscordTrain.ConnectorBase;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using DiscordTrain.Configuration;
 using DiscordTrain.JMRIConnector;
-
-
-#if !TestConnector
-using DiscordTrain.RPiConnector;
-using Microsoft.Extensions.Options;
-#endif
+using System.IO;
+using DiscordTrain.CommandModules;
 
 namespace DiscordTrain
 {
@@ -26,6 +22,10 @@ namespace DiscordTrain
                 .UseConsoleLifetime()
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
+                    builder
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", false, true);
+
                     builder.AddUserSecrets<Program>();
                 })
                 .ConfigureLogging((hostingContext, logging) =>
@@ -35,70 +35,56 @@ namespace DiscordTrain
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddOptions<TrainAnimatorOptions>();
                     services.AddHostedService<DiscordTrainService>();
+                    services.Configure<JMRIOptions>(hostContext.Configuration.GetSection("JMRI"));
 
-                    services.AddSingleton<TrainAnimator>();
-
-                    services.AddSingleton<IThrottle>(services =>
+                    var selectedConnector = hostContext.Configuration.GetValue(nameof(ConnectorType), ConnectorType.Simulated);
+                    switch (selectedConnector)
                     {
-                        var selectedConnector = hostContext.Configuration.GetValue(nameof(ConnectorType), ConnectorType.Simulated);
-                        IThrottle connector;
-                        switch (selectedConnector)
-                        {
-                            case ConnectorType.RPiGpio:
-                                connector = CreateGpioConnector(services);
-                                break;
+                        case ConnectorType.RPiGpio:
+                            services.AddRPiServices();
+                            break;
 
-                            case ConnectorType.JMRI:
-                                connector = CreateJmriConnector(services);
-                                break;
+                        case ConnectorType.JMRI:
+                            services.AddJMRIServices();
+                            break;
 
-                            default:
-                            case ConnectorType.Simulated:
-                                connector = new TestConnector(services.GetRequiredService<ILogger<TestConnector>>());
-                                break;
-                        }
+                        default:
+                        case ConnectorType.Simulated:
+                            //connector = new TestConnector(services.GetRequiredService<ILogger<TestConnector>>());
+                            break;
+                    }
 
-                        connector.Initialize();
-                        return connector;
-                    });
-
-                    services.AddSingleton(CreateDiscordSocketClient);
-                    services.AddSingleton(CreateDiscordCommandService);
+                    services.AddSingleton(DiscordSocketClientFactory);
+                    services.AddSingleton(DiscordCommandServiceFactory);
                 })
                 .Build();
 
             await host.RunAsync();
         }
 
-        private static IThrottle CreateJmriConnector(IServiceProvider services)
-        {
-            var options = services.GetRequiredService<IOptions<JMRIControllerOptions>>();
-            var logger = services.GetRequiredService<ILogger<JMRIController>>();
-            return new JMRIController(options, logger);
-        }
-
-        private static GpioControllerConnector CreateGpioConnector(IServiceProvider services)
-        {
-            var options = services.GetRequiredService<IOptions<GpioControllerConnectorOptions>>();
-            var logger = services.GetRequiredService<ILogger<GpioControllerConnector>>();
-            return new GpioControllerConnector(options, logger);
-        }
-
-        private static CommandService CreateDiscordCommandService(IServiceProvider serviceProvider)
+        private static CommandService DiscordCommandServiceFactory(IServiceProvider serviceProvider)
         {
             var logger = serviceProvider.GetRequiredService<ILogger<CommandService>>();
             var service = new CommandService();
             service.Log += message => LogDiscordMessage(message, logger);
+
+            service.AddModuleAsync<TrainRosterModule>(serviceProvider);
             service.AddModuleAsync<TrainSpeedModule>(serviceProvider);
+            service.AddModuleAsync<HelpModule>(serviceProvider);
+
             return service;
         }
 
-        private static DiscordSocketClient CreateDiscordSocketClient(IServiceProvider serviceProvider)
+        private static DiscordSocketClient DiscordSocketClientFactory(IServiceProvider serviceProvider)
         {
             var logger = serviceProvider.GetRequiredService<ILogger<DiscordSocketClient>>();
-            var client = new DiscordSocketClient();
+
+            var config = new DiscordSocketConfig {  };
+            config.GatewayIntents = config.GatewayIntents | GatewayIntents.MessageContent;
+
+            var client = new DiscordSocketClient(config);
+
             client.Log += message => LogDiscordMessage(message, logger);
             return client;
         }

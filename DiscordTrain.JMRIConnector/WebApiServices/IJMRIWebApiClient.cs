@@ -1,6 +1,6 @@
-﻿namespace DiscordTrain.JMRIConnector.Services
+﻿namespace DiscordTrain.JMRIConnector.WebApiServices
 {
-    public interface IJMRIApiClient
+    public interface IJMRIWebApiClient
     {
         ValueTask<TOut?> GetAsync<TOut>(string address, CancellationToken cancellationToken);
 

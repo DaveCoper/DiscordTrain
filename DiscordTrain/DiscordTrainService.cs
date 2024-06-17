@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.Commands;
@@ -12,10 +13,9 @@ namespace DiscordTrain
 {
     public class DiscordTrainService : IHostedService
     {
-        public const string BotTokenKey = "Discord::BotToken";
+        public const string BotTokenKey = "Discord:BotToken";
 
         private readonly string botToken;
-        private readonly TrainAnimator trainController;
         private readonly CommandService commands;
 
         private readonly DiscordSocketClient socketClient;
@@ -24,7 +24,6 @@ namespace DiscordTrain
 
         public DiscordTrainService(
             IConfiguration configuration,
-            TrainAnimator trainController,
             CommandService commands,
             DiscordSocketClient socketClient,
             IServiceProvider serviceProvider,
@@ -36,7 +35,6 @@ namespace DiscordTrain
                 throw new InvalidOperationException($"'{nameof(BotTokenKey)}' is missing!");
             }
 
-            this.trainController = trainController ?? throw new ArgumentNullException(nameof(trainController));
             this.commands = commands ?? throw new ArgumentNullException(nameof(commands));
             this.socketClient = socketClient ?? throw new ArgumentNullException(nameof(socketClient));
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -49,7 +47,6 @@ namespace DiscordTrain
 
             socketClient.MessageReceived += HandleMessageAsync;
             
-            this.trainController.StartAnimation();
 
             await socketClient.LoginAsync(Discord.TokenType.Bot, botToken);
             await socketClient.StartAsync();
@@ -64,8 +61,11 @@ namespace DiscordTrain
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
 
+            Debug.WriteLine(message.Content);
+
             // Determine if the message is a command based on the prefix and make sure no bots trigger commands
-            if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(socketClient.CurrentUser, ref argPos)) || 
+            if (!(message.HasCharPrefix('!', ref argPos) || 
+                message.HasMentionPrefix(socketClient.CurrentUser, ref argPos)) || 
                 message.Author.IsBot || 
                 message.Channel.Name != "train-controls" )
             {
@@ -87,9 +87,6 @@ namespace DiscordTrain
         {
             logger.LogInformation("Shutting down discord train bot.");
             await this.socketClient.StopAsync();
-
-            this.trainController.StopAnimation();
-            this.trainController.Dispose();
         }
     }
 }

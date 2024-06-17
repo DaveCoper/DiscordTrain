@@ -2,6 +2,7 @@
 
 namespace DiscordTrain.ConnectorBase
 {
+    /*
     /// <summary>
     /// Base class for connector that provides input validation.
     /// </summary>
@@ -45,4 +46,5 @@ namespace DiscordTrain.ConnectorBase
 
         protected abstract void SetSpeedInternal(double normalizedDutyCycle);
     }
+    */
 }

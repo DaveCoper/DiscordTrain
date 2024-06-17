@@ -4,7 +4,7 @@
     {        
         public string Name { get; set; } = string.Empty;
 
-        public string RosterEntry { get; set; } = string.Empty;
+        public string? RosterEntry { get; set; }
 
         public int? Address { get; set; }
         

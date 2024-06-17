@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DiscordTrain.ConnectorBase
 {
+    /*
     public class TestConnector : ControllerConnectorBase
     {
         private readonly ILogger<TestConnector> logger;
@@ -22,4 +23,5 @@ namespace DiscordTrain.ConnectorBase
             this.logger.LogInformation("Train speed is {0:N2}.", normalizedDutyCycle);
         }
     }
+    */
 }

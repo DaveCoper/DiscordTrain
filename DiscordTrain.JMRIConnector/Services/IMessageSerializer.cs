@@ -8,5 +8,7 @@ namespace DiscordTrain.JMRIConnector.Services
 
 
         TOut? Deserialize<TOut>(string json);
+
+        object? Deserialize(string json);
     }
 }

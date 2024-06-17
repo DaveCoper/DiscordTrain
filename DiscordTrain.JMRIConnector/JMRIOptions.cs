@@ -2,6 +2,6 @@
 {
     public class JMRIOptions
     {
-        public string JMRIWebServerUrl { get; set; } = string.Empty;
+        public string WebServerUrl { get; set; } = string.Empty;
     }
 }

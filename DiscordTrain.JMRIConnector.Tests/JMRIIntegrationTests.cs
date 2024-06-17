@@ -5,6 +5,7 @@ using DiscordTrain.JMRIConnector.WebApiServices;
 using DiscordTrain.JMRIConnector.Services;
 using DiscordTrain.JMRIConnector.Messages;
 using DiscordTrain.JMRIConnector.WebSocketServices;
+using DiscordTrain.Common;
 
 namespace DiscordTrain.JMRIConnector.Tests
 {
@@ -19,10 +20,9 @@ namespace DiscordTrain.JMRIConnector.Tests
         [Test]
         public async Task TestConnection()
         {
-            var throttleName = "TestThrottle";
             var tokenSource = new CancellationTokenSource();
             var httpClient = new HttpClient();
-            var serverOptions = Options.Create(new JMRIOptions { JMRIWebServerUrl = "http://localhost:12080" });
+            var serverOptions = Options.Create(new JMRIOptions { WebServerUrl = "http://localhost:12080" });
             var serializer = new JMRIMessageSerializer();
             var loggerFactory = new NullLoggerFactory();
 
@@ -60,15 +60,12 @@ namespace DiscordTrain.JMRIConnector.Tests
             processingTask.Start();
 
             var throttleService = new ThrottleService(websocket);
-
-            ThrottleData throttleData;
+            var throttleManager = new ThrottleManager(websocket, throttleService, loggerFactory);
+            
+            ITrainThrottle throttle;
             if (!string.IsNullOrEmpty(firstRosterEntry.Name))
             {
-                throttleData = await throttleService.GetThrottleDataAsync(throttleName, firstRosterEntry.Name, tokenSource.Token);
-            }
-            else if (firstRosterEntry.Address.HasValue)
-            {
-                throttleData = await throttleService.GetThrottleDataAsync(throttleName, firstRosterEntry.Address.Value, tokenSource.Token);
+                throttle = await throttleManager.GetThrottleAsync(firstRosterEntry.Name, tokenSource.Token);
             }
             else
             {
@@ -76,9 +73,9 @@ namespace DiscordTrain.JMRIConnector.Tests
                 return;
             }
 
-            var throttle = new JMRIThrottle(throttleName, throttleService, loggerFactory.CreateLogger<JMRIThrottle>());
             await throttle.SetSpeedAsync(100);
 
+            await Task.Delay(200);
             Assert.That(throttle.CurrentSpeedPercent, Is.EqualTo(100));
             tokenSource.Cancel();
         }

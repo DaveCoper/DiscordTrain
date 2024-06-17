@@ -24,8 +24,8 @@ namespace DiscordTrain.JMRIConnector
             IThrottleService jmriConnection,
             ILogger<JMRIThrottle> logger)
         {
-            this.CurrentSpeedPercent = 0.0;
-            this.CurrentDirection = TrainDirection.Unknown;
+            CurrentSpeedPercent = 0.0;
+            CurrentDirection = TrainDirection.Unknown;
 
             this.name = name;
 
@@ -40,47 +40,41 @@ namespace DiscordTrain.JMRIConnector
                 throw new ArgumentOutOfRangeException(nameof(direction), "Train direction can't be set to \"Unknown\"");
             }
 
-            var data = await this.jmriConnection.SetThrottleDataAsync(
+            await jmriConnection.SetThrottleDataAsync(
                 new ThrottleData
                 {
-                    Name = this.Name,
+                    Name = Name,
                     Forward = direction == TrainDirection.Forward,
                 }, CancellationToken.None);
-
-            this.UpdateThrottleData(data);
         }
 
         public async Task SetSpeedAsync(double speedPercent)
         {
-            var data = await this.jmriConnection.SetThrottleDataAsync(new ThrottleData
+            await jmriConnection.SetThrottleDataAsync(new ThrottleData
             {
-                Name = this.Name,
+                Name = Name,
                 Speed = speedPercent * 0.01,
             }, CancellationToken.None);
-
-            this.UpdateThrottleData(data);
         }
 
         public async Task RefreshValuesAsync()
         {
-            var data = await this.jmriConnection.SetThrottleDataAsync(new ThrottleData
+            await jmriConnection.SetThrottleDataAsync(new ThrottleData
             {
-                Name = this.Name,
+                Name = Name,
             }, CancellationToken.None);
-
-            this.UpdateThrottleData(data);
         }
 
         public void UpdateThrottleData(ThrottleData trainData)
         {
             if (trainData.Speed.HasValue)
             {
-                this.CurrentSpeedPercent = trainData.Speed.Value * 100.0;
+                CurrentSpeedPercent = trainData.Speed.Value * 100.0;
             }
 
             if (trainData.Forward.HasValue)
             {
-                this.CurrentDirection = trainData.Forward.Value ?
+                CurrentDirection = trainData.Forward.Value ?
                     TrainDirection.Forward :
                     TrainDirection.Backward;
             }

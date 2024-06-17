@@ -4,13 +4,10 @@ using DiscordTrain.JMRIConnector.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json.Linq;
-
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
 
 namespace DiscordTrain.JMRIConnector.WebSocketServices
 {
@@ -22,8 +19,10 @@ namespace DiscordTrain.JMRIConnector.WebSocketServices
         private readonly IMessageSerializer messageSerializer;
         private readonly ILogger<JMRIWebSocketClient> logger;
 
-        private readonly ConcurrentDictionary<string, Action<string>> responseDict;
+        private readonly ReaderWriterLockSlim readerWriterLock;
 
+        private readonly ConcurrentDictionary<int, Action<string>> responseDict;
+        private readonly List<WeakReference<Action<object>>> liseners;
         private int timeoutMs = 30000;
 
         private int messageCounter = 0;
@@ -37,8 +36,11 @@ namespace DiscordTrain.JMRIConnector.WebSocketServices
             this.messageSerializer = messageSerializer;
             this.logger = logger;
 
+            this.liseners = new List<WeakReference<Action<object>>>();
+
             this.webSocket = new ClientWebSocket();
-            this.responseDict = new ConcurrentDictionary<string, Action<string>>();
+            this.responseDict = new ConcurrentDictionary<int, Action<string>>();
+            this.readerWriterLock = new ReaderWriterLockSlim();
         }
 
 
@@ -51,72 +53,53 @@ namespace DiscordTrain.JMRIConnector.WebSocketServices
                 cancellationToken);
         }
 
-        public async ValueTask<TOut?> GetAsync<TOut>(string address, CancellationToken cancellationToken)
+        public async ValueTask SendAsync(JMRIMessage message, CancellationToken cancellationToken)
         {
-            var message = new JMRIMessage { Type = address, Method = "get" };
-            return await SendMessage<TOut>(message, cancellationToken);
-        }
-
-        public async ValueTask<TOut?> PostAsync<TIn, TOut>(string address, TIn content, CancellationToken cancellationToken)
-        {
-            var message = content as JMRIMessage ?? new JMRIMessage<TIn> { Data = content, Type = address, Method = "post" };
-            return await SendMessage<TOut>(message, cancellationToken);
-        }
-
-        public void AddWeakMessageLisener(Func<JMRIMessage, Task> lisener)
-        {
-            throw new NotImplementedException();
-        }
-
-        private async Task<TOut> SendMessage<TOut>(JMRIMessage message, CancellationToken cancellationToken)
-        {
-            var messageNumber = Interlocked.Increment(ref this.messageCounter);
-            var messageId = messageNumber.ToString();
-            message.Id = messageNumber;
-
-            if(message is JMRIMessage<ThrottleData> throttleMsg)
-            {
-                messageId = throttleMsg.Data.Throttle ?? throttleMsg.Data.Name; 
-            }
-
             var json = messageSerializer.Serialize(message);
             Debug.WriteLine($"Sending: {json}");
             var bytes = Encoding.UTF8.GetBytes(json);
+            await this.webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken);
+        }
 
-            TaskCompletionSource<TOut> taskCompletionSource = new TaskCompletionSource<TOut>();
+        public async ValueTask<TResponse> SendAsync<TResponse>(JMRIMessage message, CancellationToken cancellationToken)
+        {
+            var messageNumber = Interlocked.Increment(ref this.messageCounter);
+            message.Id = messageNumber;
+
+            TaskCompletionSource<TResponse> taskCompletionSource = new TaskCompletionSource<TResponse>();
 
             var timeout = new CancellationTokenSource(timeoutMs);
             timeout.Token.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: false);
             cancellationToken.Register(() => taskCompletionSource.TrySetCanceled(), useSynchronizationContext: false);
 
-            this.responseDict.TryAdd(messageId, (response) =>
+            this.responseDict.TryAdd(messageNumber, (response) =>
             {
-                var data = messageSerializer.Deserialize<TOut>(response);
+                var data = messageSerializer.Deserialize<TResponse>(response);
                 taskCompletionSource.TrySetResult(data ?? throw new NotImplementedException());
             });
 
-            await this.webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken);
+            await SendAsync(message, cancellationToken);
             return await taskCompletionSource.Task;
         }
 
         private string GetWebsocketAddress()
         {
-            string address = options.JMRIWebServerUrl;
+            string address = options.WebServerUrl;
             string end = address.EndsWith("/") ? "json" : "/json";
 
             if (address.StartsWith("https", StringComparison.InvariantCultureIgnoreCase))
             {
-                address = $"ws{options.JMRIWebServerUrl.Substring(5)}{end}";
+                address = $"ws{options.WebServerUrl.Substring(5)}{end}";
             }
             else if (address.StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
             {
-                address = $"ws{options.JMRIWebServerUrl.Substring(4)}{end}";
+                address = $"ws{options.WebServerUrl.Substring(4)}{end}";
             }
 
             return address;
         }
 
-        public async Task ProcessMessagesAsync(byte[] buffer, CancellationToken cancellationToken)
+        public async ValueTask ProcessMessagesAsync(byte[] buffer, CancellationToken cancellationToken)
         {
             var result = await webSocket.ReceiveAsync(buffer, cancellationToken);
             if (result.EndOfMessage)
@@ -133,26 +116,50 @@ namespace DiscordTrain.JMRIConnector.WebSocketServices
 
         private void HandleMessagePayload(string json)
         {
-            var data = messageSerializer.Deserialize<JMRIMessage>(json);
+            var data = messageSerializer.Deserialize(json);
             if (data == null)
                 return;
 
-            if (data.Id.HasValue && this.responseDict.TryRemove(data.Id.Value.ToString(), out var responseAction))
+            if (data is JMRIMessage message && 
+                message.Id.HasValue && 
+                this.responseDict.TryRemove(message.Id.Value, out var responseAction))
             {
+                Debug.WriteLine($"Received response for action {message.Id}");
                 responseAction(json);
+                return;
             }
-            else if (data.Type == "throttle")
-            {
-                var throttleData = messageSerializer.Deserialize<JMRIMessage<ThrottleData>>(json);
-                if (throttleData == null || throttleData.Data.Throttle == null)
-                    throw new NotImplementedException();
 
-                if (this.responseDict.TryRemove(throttleData.Data.Name, out responseAction))
+            this.readerWriterLock.EnterReadLock();
+            try
+            {
+                foreach(var lisener in this.liseners)
                 {
-                    responseAction(json);
+                    if(lisener.TryGetTarget(out var target))
+                    {
+                        target(data);
+                    }
                 }
             }
+            finally
+            {
+                this.readerWriterLock.ExitReadLock();
+            }
+        }
 
+        public void AddWeakMessageLisener(Action<object> lisener)
+        {
+            this.readerWriterLock.EnterWriteLock();
+            var emptyHandle = this.liseners.FirstOrDefault(x => !x.TryGetTarget(out _));
+            if (emptyHandle == null)
+            {
+                this.liseners.Add(new WeakReference<Action<object>>(lisener));
+            }
+            else
+            {
+                emptyHandle.SetTarget(lisener);
+            }
+
+            this.readerWriterLock.ExitWriteLock();
         }
 
         //private void HandleMessage(JToken jdata)

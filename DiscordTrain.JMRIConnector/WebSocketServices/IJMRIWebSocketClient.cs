@@ -1,12 +1,17 @@
 ﻿using DiscordTrain.JMRIConnector.Messages;
-using DiscordTrain.JMRIConnector.Services;
 
 namespace DiscordTrain.JMRIConnector.WebSocketServices
 {
-    public interface IJMRIWebSocketClient : IJMRIApiClient
+    public interface IJMRIWebSocketClient
     {
         ValueTask InitializeAsync(CancellationToken cancellationToken);
 
-        void AddWeakMessageLisener(Func<JMRIMessage, Task> lisener);
+        ValueTask SendAsync(JMRIMessage message, CancellationToken cancellationToken);
+        
+        ValueTask<TResponse> SendAsync<TResponse>(JMRIMessage message, CancellationToken cancellationToken);
+
+        ValueTask ProcessMessagesAsync(byte[] buffer, CancellationToken cancellationToken);
+
+        void AddWeakMessageLisener(Action<object> lisener);
     }
 }
