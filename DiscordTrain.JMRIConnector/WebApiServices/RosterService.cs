@@ -4,7 +4,7 @@ using DiscordTrain.JMRIConnector.Messages;
 
 namespace DiscordTrain.JMRIConnector.WebApiServices
 {
-    public class RosterService : IRosterProvider
+    public class RosterService : IRosterService
     {
         private const string ServiceName = "roster";
 
@@ -15,7 +15,7 @@ namespace DiscordTrain.JMRIConnector.WebApiServices
             this.apiClient = apiClient;
         }
 
-        public async Task<IEnumerable<IRosterEntry>> GetRosterEntriesAsync(CancellationToken cancellationToken)
+        public async Task<IEnumerable<RosterEntryData>> GetRosterEntriesAsync(CancellationToken cancellationToken)
         {
             var messages = await apiClient.GetAsync<List<JMRIMessage<RosterEntryData>>>(ServiceName, cancellationToken);
             if (messages == null)
