@@ -1,19 +1,19 @@
-﻿using DiscordTrain.JMRIConnector.Messages;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Net.WebSockets;
+using System.Text;
+
+using DiscordTrain.JMRIConnector.Messages;
 using DiscordTrain.JMRIConnector.Services;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Net.WebSockets;
-using System.Text;
-
 namespace DiscordTrain.JMRIConnector.WebSocketServices
 {
     public class JMRIWebSocketClient : IJMRIWebSocketClient
     {
-        private readonly JMRIOptions options;
+        private readonly JMRIConnectorOptions options;
         private readonly ClientWebSocket webSocket;
 
         private readonly IMessageSerializer messageSerializer;
@@ -29,7 +29,7 @@ namespace DiscordTrain.JMRIConnector.WebSocketServices
 
         public JMRIWebSocketClient(
             IMessageSerializer messageSerializer,
-            IOptions<JMRIOptions> options,
+            IOptions<JMRIConnectorOptions> options,
             ILogger<JMRIWebSocketClient> logger)
         {
             this.options = options.Value;

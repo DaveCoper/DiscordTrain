@@ -1,4 +1,5 @@
 ﻿using DiscordTrain.Common;
+using DiscordTrain.Common.Model;
 using DiscordTrain.JMRIConnector.Messages;
 
 namespace DiscordTrain.JMRIConnector.WebApiServices

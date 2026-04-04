@@ -1,8 +1,9 @@
-﻿using DiscordTrain.JMRIConnector.Services;
+﻿using System.Text;
+
+using DiscordTrain.JMRIConnector.Services;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using System.Text;
 
 namespace DiscordTrain.JMRIConnector.WebApiServices
 {
@@ -17,7 +18,7 @@ namespace DiscordTrain.JMRIConnector.WebApiServices
         public JMRIWebApiClient(
             HttpClient httpClient,
             IMessageSerializer messageSerializer,
-            IOptions<JMRIOptions> options,
+            IOptions<JMRIConnectorOptions> options,
             ILogger<JMRIWebApiClient> logger)
         {
             this.httpClient = httpClient;

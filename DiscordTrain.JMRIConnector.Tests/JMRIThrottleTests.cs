@@ -1,7 +1,7 @@
-using Microsoft.Extensions.Logging.Abstractions;
-
 using DiscordTrain.Common;
 using DiscordTrain.JMRIConnector.Messages;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DiscordTrain.JMRIConnector.Tests
 {

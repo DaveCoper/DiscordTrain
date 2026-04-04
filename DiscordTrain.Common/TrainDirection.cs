@@ -1,9 +1,8 @@
-﻿namespace DiscordTrain.Common
+﻿namespace DiscordTrain.Common;
+
+public enum TrainDirection
 {
-    public enum TrainDirection
-    {
-        Unknown,
-        Forward,
-        Backward,
-    }
+    Unknown,
+    Forward,
+    Backward,
 }

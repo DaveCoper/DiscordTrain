@@ -1,6 +1,6 @@
 ﻿namespace DiscordTrain.JMRIConnector
 {
-    public class JMRIOptions
+    public class JMRIConnectorOptions
     {
         public string WebServerUrl { get; set; } = string.Empty;
     }

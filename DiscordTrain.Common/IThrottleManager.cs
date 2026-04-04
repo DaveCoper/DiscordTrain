@@ -1,9 +1,8 @@
-﻿namespace DiscordTrain.Common
-{
-    public interface IThrottleManager
-    {
-        ValueTask<ITrainThrottle> GetThrottleAsync(string rosterName, CancellationToken cancellationToken);
+﻿namespace DiscordTrain.Common;
 
-        ValueTask EmergencyStop();
-    }
+public interface IThrottleManager
+{
+    ValueTask<ITrainThrottle> GetThrottleAsync(string rosterName, CancellationToken cancellationToken);
+
+    ValueTask EmergencyStop();
 }

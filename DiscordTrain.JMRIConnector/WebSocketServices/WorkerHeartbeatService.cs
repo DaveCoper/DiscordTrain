@@ -1,4 +1,5 @@
 ﻿using DiscordTrain.JMRIConnector.Messages;
+
 using Microsoft.Extensions.Hosting;
 
 namespace DiscordTrain.JMRIConnector.WebSocketServices

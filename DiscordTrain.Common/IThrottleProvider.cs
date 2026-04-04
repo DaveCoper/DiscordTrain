@@ -1,7 +1,6 @@
-﻿namespace DiscordTrain.Common
+﻿namespace DiscordTrain.Common;
+
+public interface IThrottleProvider
 {
-    public interface IThrottleProvider
-    {
-        public ValueTask<ITrainThrottle> GetThrottleAsync(string name);
-    }
+    public ValueTask<ITrainThrottle> GetThrottleAsync(string name);
 }

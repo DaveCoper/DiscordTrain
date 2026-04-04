@@ -1,0 +1,19 @@
+
+<Solution FormatVersion="1.0">
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Debug Without HW" />
+    <BuildType Name="Release" />
+  </Configurations>
+    <Project Path="../../../../../../../../Projects/DiscordTrain/BlazorTrain/BlazorTrain.csproj" Id="7f0f1fb6-2721-425f-9250-ff3ef0ab3a51">
+        <BuildType Solution="Debug Without HW|*" Project="Debug" />
+    </Project>
+    <Project Path="../../../../../../../../Projects/DiscordTrain/DiscordTrain.Common/DiscordTrain.Common.csproj" />
+    <Project Path="../../../../../../../../Projects/DiscordTrain/DiscordTrain.JMRIConnector.Tests/DiscordTrain.JMRIConnector.Tests.csproj" />
+    <Project Path="../../../../../../../../Projects/DiscordTrain/DiscordTrain.JMRIConnector/DiscordTrain.JMRIConnector.csproj" />
+    <Project Path="../../../../../../../../Projects/DiscordTrain/DiscordTrain.RPiConnector.Tests/DiscordTrain.RPiConnector.Tests.csproj" Id="3d4af23a-bb98-4565-92fd-e3f09585fa60">
+        <BuildType Solution="Debug Without HW|*" Project="Debug" />
+    </Project>
+    <Project Path="../../../../../../../../Projects/DiscordTrain/DiscordTrain.RPiConnector/DiscordTrain.RPiConnector.csproj" />
+    <Project Path="../../../../../../../../Projects/DiscordTrain/DiscordTrain/DiscordTrain.csproj" />
+</Solution>

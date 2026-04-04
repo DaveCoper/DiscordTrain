@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DiscordTrain.JMRIConnector.Messages;
 using DiscordTrain.JMRIConnector.WebSocketServices;
+
 using Microsoft.Extensions.Hosting;
 
 namespace DiscordTrain.Workers

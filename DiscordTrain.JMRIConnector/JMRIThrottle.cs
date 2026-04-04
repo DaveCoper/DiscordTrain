@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-
-using DiscordTrain.Common;
+﻿using DiscordTrain.Common;
 using DiscordTrain.JMRIConnector.Messages;
 using DiscordTrain.JMRIConnector.Services;
+
+using Microsoft.Extensions.Logging;
 
 namespace DiscordTrain.JMRIConnector
 {

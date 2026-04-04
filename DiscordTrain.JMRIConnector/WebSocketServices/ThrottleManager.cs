@@ -1,8 +1,10 @@
 ﻿using System.Collections.Concurrent;
-using Microsoft.Extensions.Logging;
-using DiscordTrain.JMRIConnector.Services;
-using DiscordTrain.JMRIConnector.Messages;
+
 using DiscordTrain.Common;
+using DiscordTrain.JMRIConnector.Messages;
+using DiscordTrain.JMRIConnector.Services;
+
+using Microsoft.Extensions.Logging;
 
 namespace DiscordTrain.JMRIConnector.WebSocketServices
 {

@@ -1,8 +1,11 @@
-﻿using DiscordTrain.ConnectorBase;
+﻿using System;
+
+using DiscordTrain.Common;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using System;
+
 using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Abstractions;
 using Unosquare.WiringPi;
@@ -10,60 +13,69 @@ using Unosquare.WiringPi;
 namespace DiscordTrain.RPiConnector
 {
     /// <summary>
-    /// Controller for Raspberry Pi that uses GPIO to controll the train.
+    /// Controller for Raspberry Pi that uses GPIO to control the train.
     /// </summary>
-    public class GpioControllerConnector : ControllerConnectorBase
+    public class GpioTrainController : IGpioTrainController
     {
-        private readonly GpioControllerConnectorOptions options;
+        private readonly RPiConnectorOptions options;
 
-        private readonly ILogger<GpioControllerConnector> logger;
+        private readonly ILogger<GpioTrainController> logger;
 
         private GpioPin directionPin;
 
         private GpioPin pwmPin;
 
         /// <summary>
-        /// Contructor for <see cref="GpioControllerConnector">.
+        /// Constructor for <see cref="GpioTrainController">.
         /// </summary>
         /// <param name="options">Controllers options <see cref="GpioControllerConnectorOptions"> for more info.</param>
         /// <param name="logger">Logger for logging.</param>
-        public GpioControllerConnector(IOptions<GpioControllerConnectorOptions> options, ILogger<GpioControllerConnector> logger = null)
+        public GpioTrainController(IOptions<RPiConnectorOptions> options, ILogger<GpioTrainController> logger = null)
         {
             this.options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-            this.logger = logger ?? NullLogger<GpioControllerConnector>.Instance;
+            this.logger = logger ?? NullLogger<GpioTrainController>.Instance;
         }
 
         /// <summary>
         /// Initializes WiringPi and gpio pins.
         /// </summary>
-        public override void Initialize()
+        public void Initialize()
         {
             Pi.Init<BootstrapWiringPi>();
 
-            directionPin = (GpioPin)Pi.Gpio[FindPin(options.DirectionPinNumber)];
+            this.logger.LogInformation("Initializing GPIO train controller with pwm pin: {pwmPin} and direction pin {directionPin}", options.PwmPinNumber, options.DirectionPinNumber);
+
+            var directionPinIndex = FindPin(options.DirectionPinNumber);
+            directionPin = (GpioPin)Pi.Gpio[directionPinIndex];
             directionPin.PinMode = GpioPinDriveMode.Output;
 
-            // make train go foward.
-            directionPin.Write(true);
-
-            pwmPin = (GpioPin)Pi.Gpio[FindPin(options.PwmPinNumber)];
+            var pwmPinIndex = FindPin(options.PwmPinNumber);
+            pwmPin = (GpioPin)Pi.Gpio[pwmPinIndex];
             pwmPin.PinMode = GpioPinDriveMode.PwmOutput;
             pwmPin.PwmMode = PwmMode.Balanced;
             pwmPin.PwmClockDivisor = 128;
             pwmPin.PwmRange = 1024;
 
-            base.Initialize();
+            // make train go forward.
+            SetSpeed(0);
+            SetDirection(TrainDirection.Forward);
         }
 
         /// <summary>
         /// Sets state of direction pin.
         /// </summary>
         /// <param name="trainIsGoingFoward">Value of direction pin.</param>
-        protected override void SetDirectionInternal(bool trainIsGoingFoward)
+        public void SetDirection(TrainDirection trainDirection)
         {
+            if (trainDirection == TrainDirection.Unknown)
+            {
+                logger.LogWarning("Train direction is unknown. Direction pin will not be changed.");
+                return;
+            }
+
             if (directionPin != null)
             {
-                directionPin.Write(trainIsGoingFoward);
+                directionPin.Write(trainDirection == TrainDirection.Backward);
             }
         }
 
@@ -71,8 +83,10 @@ namespace DiscordTrain.RPiConnector
         /// Sets duty cycle of PWM module.
         /// </summary>
         /// <param name="normalizedDutyCycle">Pwm duty cycle. Valid values are between 0 and 1.</param>
-        protected override void SetSpeedInternal(double normalizedDutyCycle)
+        public void SetSpeed(double normalizedDutyCycle)
         {
+            normalizedDutyCycle = Math.Clamp(normalizedDutyCycle, 0.0, 1.0);
+
             if (pwmPin != null)
             {
                 pwmPin.PwmRegister = (int)(normalizedDutyCycle * pwmPin.PwmRange);

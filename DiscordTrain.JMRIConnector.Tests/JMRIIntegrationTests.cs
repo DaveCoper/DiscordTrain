@@ -1,11 +1,12 @@
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using DiscordTrain.JMRIConnector.WebApiServices;
-using DiscordTrain.JMRIConnector.Services;
-using DiscordTrain.JMRIConnector.Messages;
-using DiscordTrain.JMRIConnector.WebSocketServices;
 using DiscordTrain.Common;
+using DiscordTrain.JMRIConnector.Messages;
+using DiscordTrain.JMRIConnector.Services;
+using DiscordTrain.JMRIConnector.WebApiServices;
+using DiscordTrain.JMRIConnector.WebSocketServices;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace DiscordTrain.JMRIConnector.Tests
 {
@@ -22,7 +23,7 @@ namespace DiscordTrain.JMRIConnector.Tests
         {
             var tokenSource = new CancellationTokenSource();
             var httpClient = new HttpClient();
-            var serverOptions = Options.Create(new JMRIOptions { WebServerUrl = "http://localhost:12080" });
+            var serverOptions = Options.Create(new JMRIConnectorOptions { WebServerUrl = "http://localhost:12080" });
             var serializer = new JMRIMessageSerializer();
             var loggerFactory = new NullLoggerFactory();
 

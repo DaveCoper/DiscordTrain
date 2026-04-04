@@ -1,19 +1,16 @@
 using System;
-using System.Threading;
-using DiscordTrain.ConnectorBase;
+
+using DiscordTrain.RPiConnector;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace DiscordTrain
 {
-    public class TrainAnimator : IDisposable
+    public class TrainAnimator : ITrainAnimator
     {
-        private readonly TrainAnimatorOptions options;
-
-        private Timer timer;
-
-        private bool disposedValue;
+        private readonly RPiConnectorOptions options;
 
         private double desiredSpeed;
 
@@ -21,50 +18,32 @@ namespace DiscordTrain
 
         private bool emergencyStop;
 
-        public TrainAnimator(IControllerConnector controllerConnector, IOptions<TrainAnimatorOptions> options, ILogger<TrainAnimator> logger = null)
+        public TrainAnimator(IGpioTrainController trainController, IOptions<RPiConnectorOptions> options, ILogger<TrainAnimator> logger = null)
         {
             this.options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-            this.controllerConnector = controllerConnector ?? throw new ArgumentNullException(nameof(controllerConnector));
+            this.trainController = trainController ?? throw new ArgumentNullException(nameof(trainController));
             this.logger = logger ?? NullLogger<TrainAnimator>.Instance;
         }
 
         public double DesiredSpeed
         {
             get => desiredSpeed;
-            set => desiredSpeed = Math.Max(-100.0, Math.Min(100.0, value));
+            set => desiredSpeed = Math.Clamp(value, -100.0, 100.0);
         }
 
         public double CurrentSpeed { get; private set; }
 
-        private readonly IControllerConnector controllerConnector;
+        private readonly IGpioTrainController trainController;
         public readonly ILogger<TrainAnimator> logger;
 
         public void EmergencyStop()
         {
             this.DesiredSpeed = 0;
             this.emergencyStop = true;
+            this.Animate();
         }
 
-        public void StartAnimation()
-        {
-            if (timer != null)
-                return;
-
-            timer = new Timer(this.Animate, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(300));
-        }
-
-        public void StopAnimation()
-        {
-            if (timer != null)
-            {
-                timer.Dispose();
-                timer = null;
-            }
-
-            this.controllerConnector.SetSpeed(0);
-        }
-
-        private void Animate(object state)
+        public void Animate()
         {
             if (emergencyStop)
             {
@@ -109,23 +88,22 @@ namespace DiscordTrain
 
         private void SetSpeed(double speed)
         {
-            // round numbers betwen -1 and 1 to 0.0
             if (Math.Abs(speed) < 1)
             {
-                this.controllerConnector.SetSpeed(0);
+                this.trainController.SetSpeed(0);
                 return;
             }
             else if (speed < 0)
             {
-                this.controllerConnector.SetDirection(false);
+                this.trainController.SetDirection(Common.TrainDirection.Backward);
             }
             else if (speed > 0)
             {
-                this.controllerConnector.SetDirection(true);
+                this.trainController.SetDirection(Common.TrainDirection.Forward);
             }
 
             var normalizedSpeed = ((this.options.MaximumSpeedPercent - this.options.MinimumSpeedPercent) * Math.Abs(speed / 100.0) + this.options.MinimumSpeedPercent) / 100.0;
-            this.controllerConnector.SetSpeed(normalizedSpeed);
+            this.trainController.SetSpeed(normalizedSpeed);
         }
 
         #region IDisposable implementation

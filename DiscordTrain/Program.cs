@@ -1,16 +1,19 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+
+using DiscordTrain.CommandModules;
+using DiscordTrain.Configuration;
+using DiscordTrain.JMRIConnector;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using DiscordTrain.Configuration;
-using DiscordTrain.JMRIConnector;
-using System.IO;
-using DiscordTrain.CommandModules;
 
 namespace DiscordTrain
 {
@@ -36,7 +39,7 @@ namespace DiscordTrain
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<DiscordTrainService>();
-                    services.Configure<JMRIOptions>(hostContext.Configuration.GetSection("JMRI"));
+                    services.Configure<JMRIConnectorOptions>(hostContext.Configuration.GetSection("JMRI"));
 
                     var selectedConnector = hostContext.Configuration.GetValue(nameof(ConnectorType), ConnectorType.Simulated);
                     switch (selectedConnector)
