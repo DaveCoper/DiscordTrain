@@ -1,10 +1,10 @@
-﻿using DiscordTrain;
-using DiscordTrain.Common.Commands;
-using DiscordTrain.JMRIConnector;
-using DiscordTrain.JMRIConnector.Commands;
-using DiscordTrain.RPiConnector;
+﻿using DiscordTrain.Common.Commands;
+using DiscordTrain.RPiConnector.Commands;
 
-namespace BlazorTrain;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DiscordTrain.RPiConnector.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
@@ -20,21 +20,7 @@ public static class ServiceCollectionExtensions
 
         // register commands
         services.AddKeyedSingleton<IListRosterCommand, ListRosterCommand>(serviceKey);
-        
-        return services;
-    }
-    
-    public static IServiceCollection RegisterJMRIConnector(this IServiceCollection services, IConfiguration configuration, string serviceKey = "JMRI")
-    {
-        // register configuration
-        services.Configure<JMRIConnectorOptions>(configuration.GetSection(JMRIConnectorOptions.OptionsKey));
-
-        // register commands
-        services.AddKeyedSingleton<IListRosterCommand, DiscordTrain.JMRIConnector.Commands.ListRosterCommand>(serviceKey);
-
 
         return services;
     }
-
-
 }

@@ -1,14 +1,13 @@
-﻿using DiscordTrain;
-using DiscordTrain.RPiConnector;
-
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace BlazorTrain;
+namespace DiscordTrain.RPiConnector.DependencyInjection;
 
 public class RPiAnimatorService(
-    ITrainAnimator trainAnimator, 
-    IGpioTrainController gpioTrainController, 
-    IOptions<RPiConnectorOptions> options, 
+    ITrainAnimator trainAnimator,
+    IGpioTrainController gpioTrainController,
+    IOptions<RPiConnectorOptions> options,
     ILogger<RPiAnimatorService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

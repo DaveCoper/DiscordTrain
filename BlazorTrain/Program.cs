@@ -3,12 +3,16 @@ using BlazorTrain.Components;
 
 using MudBlazor.Services;
 
+using DiscordTrain.RPiConnector.DependencyInjection;
+using DiscordTrain.JMRIConnector.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
 
 builder.Services.RegisterRPiConnector(builder.Configuration);
+builder.Services.RegisterJMRIConnector(builder.Configuration); 
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

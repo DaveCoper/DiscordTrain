@@ -14,7 +14,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\DiscordTrain.JMRIConnector\DiscordTrain.JMRIConnector.csproj" />
-    <ProjectReference Include="..\DiscordTrain.RPiConnector\DiscordTrain.RPiConnector.csproj" />
+    <ProjectReference Include="..\DiscordTrain.JMRIConnector.DependencyInjection\DiscordTrain.JMRIConnector.DependencyInjection.csproj" />
+    <ProjectReference Include="..\DiscordTrain.RPiConnector.DependencyInjection\DiscordTrain.RPiConnector.DependencyInjection.csproj" />
   </ItemGroup>
 </Project>

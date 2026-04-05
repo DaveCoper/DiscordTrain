@@ -1,8 +1,6 @@
-﻿using DiscordTrain.Common.Model;
-
-namespace DiscordTrain.JMRIConnector.Messages
+﻿namespace DiscordTrain.JMRIConnector.Messages
 {
-    public class RosterEntryData : IRosterEntry
+    public class RosterEntryData
     {
         public string? Name { get; set; }
 
