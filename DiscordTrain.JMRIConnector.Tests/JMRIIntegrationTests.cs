@@ -49,13 +49,12 @@ namespace DiscordTrain.JMRIConnector.Tests
                 loggerFactory.CreateLogger<JMRIWebSocketClient>());
             
             await websocket.InitializeAsync(tokenSource.Token);
-            var processingTask = new Thread(() => {
+            var processingTask = new Thread(async () => {
                 var buffer = new byte[20000];
 
                 while (!tokenSource.IsCancellationRequested)
                 {
-                    websocket.ProcessMessagesAsync(buffer, tokenSource.Token)
-                        .Wait();
+                    await websocket.ProcessMessagesAsync(buffer, tokenSource.Token);
                 }
             });
             processingTask.Start();

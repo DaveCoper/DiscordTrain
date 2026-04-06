@@ -7,8 +7,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 
 using DiscordTrain.CommandModules;
-using DiscordTrain.Configuration;
-using DiscordTrain.JMRIConnector;
+using DiscordTrain.JMRIConnector.DependencyInjection;
+using DiscordTrain.RPiConnector.DependencyInjection;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +27,8 @@ namespace DiscordTrain
                 {
                     builder
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", false, true);
+                        .AddJsonFile("appsettings.json", false, true)
+                        .AddJsonFile("appsettings.local.json", true, true);
 
                     builder.AddUserSecrets<Program>();
                 })
@@ -38,25 +39,8 @@ namespace DiscordTrain
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddHostedService<DiscordTrainService>();
-                    services.Configure<JMRIConnectorOptions>(hostContext.Configuration.GetSection("JMRI"));
-
-                    var selectedConnector = hostContext.Configuration.GetValue(nameof(ConnectorType), ConnectorType.Simulated);
-                    switch (selectedConnector)
-                    {
-                        case ConnectorType.RPiGpio:
-                            services.AddRPiServices();
-                            break;
-
-                        case ConnectorType.JMRI:
-                            services.AddJMRIServices();
-                            break;
-
-                        default:
-                        case ConnectorType.Simulated:
-                            //connector = new TestConnector(services.GetRequiredService<ILogger<TestConnector>>());
-                            break;
-                    }
+                    services.RegisterRPiConnector(hostContext.Configuration);
+                    services.RegisterJMRIConnector(hostContext.Configuration);
 
                     services.AddSingleton(DiscordSocketClientFactory);
                     services.AddSingleton(DiscordCommandServiceFactory);

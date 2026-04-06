@@ -5,10 +5,10 @@
 
 
 <h3>Roster</h3>
-<MudTable T="IRosterEntry" Items="tableData" Hover="true" Bordered="true" Striped="true">
+<MudTable T="IRosterEntry" Items="tableData" Hover="true">
     <HeaderContent>
         <MudTh>Engine Id</MudTh>
-        <MudTh>Name</MudTh>        
+        <MudTh>Name</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Guild Id">@context.Id</MudTd>
@@ -28,7 +28,9 @@
 
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-        var tasks = scope.ServiceProvider.GetServices<IListRosterCommand>().Select(x => x.ListRosterAsync(cancellationTokenSource.Token));
+        var tasks = scope.ServiceProvider.GetKeyedServices<IListRosterCommand>(KeyedService.AnyKey)
+            .Select(x => x.ListRosterAsync(cancellationTokenSource.Token));
+        
         var results = await Task.WhenAll(tasks);
         this.tableData = results.SelectMany(x => x).ToList();
     }

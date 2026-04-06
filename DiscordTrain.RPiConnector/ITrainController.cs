@@ -2,7 +2,7 @@
 
 namespace DiscordTrain.RPiConnector
 {
-    public interface IGpioTrainController
+    public interface ITrainController
     {
         void Initialize();
         void SetDirection(TrainDirection trainDirection);

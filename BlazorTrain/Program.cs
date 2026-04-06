@@ -1,17 +1,18 @@
-using BlazorTrain;
 using BlazorTrain.Components;
 
 using MudBlazor.Services;
 
-using DiscordTrain.RPiConnector.DependencyInjection;
 using DiscordTrain.JMRIConnector.DependencyInjection;
+using DiscordTrain.RPiConnector.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.local.json", true, true);
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
 
-builder.Services.RegisterRPiConnector(builder.Configuration);
+//builder.Services.RegisterRPiConnector(builder.Configuration);
+builder.Services.RegisterSimulatedRPiConnector(builder.Configuration);
 builder.Services.RegisterJMRIConnector(builder.Configuration); 
 
 // Add services to the container.

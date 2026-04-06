@@ -6,7 +6,7 @@ namespace DiscordTrain.RPiConnector.DependencyInjection;
 
 public class RPiAnimatorService(
     ITrainAnimator trainAnimator,
-    IGpioTrainController gpioTrainController,
+    ITrainController gpioTrainController,
     IOptions<RPiConnectorOptions> options,
     ILogger<RPiAnimatorService> logger) : BackgroundService
 {

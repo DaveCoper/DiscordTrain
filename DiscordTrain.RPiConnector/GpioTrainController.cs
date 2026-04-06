@@ -15,7 +15,7 @@ namespace DiscordTrain.RPiConnector
     /// <summary>
     /// Controller for Raspberry Pi that uses GPIO to control the train.
     /// </summary>
-    public class GpioTrainController : IGpioTrainController
+    public class GpioTrainController : ITrainController
     {
         private readonly RPiConnectorOptions options;
 

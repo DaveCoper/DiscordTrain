@@ -18,7 +18,7 @@ namespace DiscordTrain
 
         private bool emergencyStop;
 
-        public TrainAnimator(IGpioTrainController trainController, IOptions<RPiConnectorOptions> options, ILogger<TrainAnimator> logger = null)
+        public TrainAnimator(ITrainController trainController, IOptions<RPiConnectorOptions> options, ILogger<TrainAnimator> logger = null)
         {
             this.options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             this.trainController = trainController ?? throw new ArgumentNullException(nameof(trainController));
@@ -33,7 +33,7 @@ namespace DiscordTrain
 
         public double CurrentSpeed { get; private set; }
 
-        private readonly IGpioTrainController trainController;
+        private readonly ITrainController trainController;
         public readonly ILogger<TrainAnimator> logger;
 
         public void EmergencyStop()
