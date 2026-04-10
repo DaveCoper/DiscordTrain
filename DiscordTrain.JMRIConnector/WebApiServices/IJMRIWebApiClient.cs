@@ -2,8 +2,8 @@
 {
     public interface IJMRIWebApiClient
     {
+        ValueTask<HttpResponseMessage> GetAsync(string address, CancellationToken cancellationToken);
         ValueTask<TOut?> GetAsync<TOut>(string address, CancellationToken cancellationToken);
-
         ValueTask<TOut?> PostAsync<TIn, TOut>(string address, TIn content, CancellationToken cancellationToken);
     }
 }

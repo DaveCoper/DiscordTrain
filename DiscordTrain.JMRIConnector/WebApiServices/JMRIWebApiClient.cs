@@ -13,24 +13,24 @@ namespace DiscordTrain.JMRIConnector.WebApiServices
         private readonly IMessageSerializer messageSerializer;
         private readonly ILogger<JMRIWebApiClient> logger;
 
-        private readonly string baseAddress;
-
         public JMRIWebApiClient(
             HttpClient httpClient,
             IMessageSerializer messageSerializer,
-            IOptions<JMRIConnectorOptions> options,
             ILogger<JMRIWebApiClient> logger)
         {
             this.httpClient = httpClient;
             this.messageSerializer = messageSerializer;
             this.logger = logger;
+        }
+        
+        public async ValueTask<HttpResponseMessage> GetAsync(string address, CancellationToken cancellationToken)
+        {
+            var callUri = GetUri(address);
+            var response = await httpClient.GetAsync(callUri, cancellationToken)
+                .ConfigureAwait(false);
 
-            var url = options.Value.WebServerUrl;
-            if (url.EndsWith("/"))            
-                this.baseAddress = url + "json/";            
-            else
-                this.baseAddress = url + "/json/";
-
+            response.EnsureSuccessStatusCode();
+            return response;
         }
 
         public async ValueTask<TOut?> GetAsync<TOut>(string address, CancellationToken cancellationToken)
@@ -67,9 +67,8 @@ namespace DiscordTrain.JMRIConnector.WebApiServices
         private string GetUri(string address)
         {
             if(address.StartsWith("/"))
-                address = address.Substring(1);
-
-            return this.baseAddress + address;
+                return address.Substring(1);
+            return address;
         }
     }
 }

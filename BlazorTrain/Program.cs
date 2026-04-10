@@ -5,15 +5,21 @@ using MudBlazor.Services;
 using DiscordTrain.JMRIConnector.DependencyInjection;
 using DiscordTrain.RPiConnector.DependencyInjection;
 
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", true, true);
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
 
+builder.Services.AddMvc();
+
 //builder.Services.RegisterRPiConnector(builder.Configuration);
 builder.Services.RegisterSimulatedRPiConnector(builder.Configuration);
 builder.Services.RegisterJMRIConnector(builder.Configuration); 
+
+builder.Services.AddMemoryCache();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -36,6 +42,7 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

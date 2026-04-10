@@ -18,7 +18,8 @@ public class ListRosterCommand(IRosterService rosterService) : IListRosterComman
         return roster.Select(x => new RosterEntry
         {
             Id = GetFormatedId(x),
-            Name = x.Name ?? string.Empty
+            Name = x.Name ?? string.Empty,
+            SmallIcon = x.Image
         }).ToImmutableList<IRosterEntry>();
     }
 

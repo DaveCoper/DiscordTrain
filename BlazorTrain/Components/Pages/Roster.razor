@@ -7,10 +7,17 @@
 <h3>Roster</h3>
 <MudTable T="IRosterEntry" Items="tableData" Hover="true">
     <HeaderContent>
+        <MudTh>Icon</MudTh>
         <MudTh>Engine Id</MudTh>
         <MudTh>Name</MudTh>
     </HeaderContent>
     <RowTemplate>
+        <MudTd DataLabel="User Id">
+            @if (!string.IsNullOrWhiteSpace(context.SmallIcon))
+            {
+                <img src="@FormatImagePath(context.Id)" style="max-width: 140px; max-height: 140px;" />
+            }
+        </MudTd>
         <MudTd DataLabel="Guild Id">@context.Id</MudTd>
         <MudTd DataLabel="User Id">@context.Name</MudTd>
     </RowTemplate>
@@ -34,5 +41,9 @@
         var results = await Task.WhenAll(tasks);
         this.tableData = results.SelectMany(x => x).ToList();
     }
-
+    
+    private string FormatImagePath(string id)
+    {
+        return $"/api/image/{id}";
+    }
 }

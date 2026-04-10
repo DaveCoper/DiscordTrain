@@ -39,7 +39,6 @@ public static class ServiceCollectionExtensions
             return new JMRIWebApiClient(
                 httpClient,
                 serviceProvider.GetRequiredKeyedService<IMessageSerializer>(key),
-                serviceProvider.GetRequiredService<IOptions<JMRIConnectorOptions>>(),
                 serviceProvider.GetRequiredService<ILogger<JMRIWebApiClient>>()
             );
         });

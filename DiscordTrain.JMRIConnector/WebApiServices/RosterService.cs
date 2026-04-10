@@ -6,7 +6,7 @@ namespace DiscordTrain.JMRIConnector.WebApiServices
 {
     public class RosterService : IRosterService
     {
-        private const string ServiceName = "roster";
+        private const string ServiceName = "json/roster";
 
         private readonly IJMRIWebApiClient apiClient;
 
