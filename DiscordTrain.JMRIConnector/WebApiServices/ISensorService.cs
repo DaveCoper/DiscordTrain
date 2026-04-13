@@ -4,7 +4,7 @@ using DiscordTrain.JMRIConnector.Messages;
 
 namespace DiscordTrain.JMRIConnector.WebApiServices;
 
-public interface IRosterService
+public interface ISensorService
 {
-    Task<ImmutableList<RosterEntryData>> GetRosterEntriesAsync(CancellationToken cancellationToken);
+    Task<ImmutableList<SensorData>> GetSensorEntriesAsync(CancellationToken cancellationToken);
 }

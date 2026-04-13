@@ -8,7 +8,7 @@ using DiscordTrain.JMRIConnector.WebApiServices;
 
 namespace DiscordTrain.JMRIConnector.Commands;
 
-public class ListRosterCommand(IRosterService rosterService) : IListRosterCommand
+public class ListRosterCommand(IRosterService rosterService) : JmriCommand, IListRosterCommand
 {
     public async Task<ImmutableList<IRosterEntry>> ListRosterAsync(CancellationToken cancellationToken)
     {

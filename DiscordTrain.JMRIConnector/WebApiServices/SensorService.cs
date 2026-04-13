@@ -4,22 +4,22 @@ using DiscordTrain.JMRIConnector.Messages;
 
 namespace DiscordTrain.JMRIConnector.WebApiServices
 {
-    public class RosterService : IRosterService
+    public class SensorService : ISensorService
     {
-        private const string ServiceName = "json/roster";
+        private const string ServiceName = "json/sensor";
 
         private readonly IJMRIWebApiClient apiClient;
 
-        public RosterService(IJMRIWebApiClient apiClient)
+        public SensorService(IJMRIWebApiClient apiClient)
         {
             this.apiClient = apiClient;
         }
 
-        public async Task<ImmutableList<RosterEntryData>> GetRosterEntriesAsync(CancellationToken cancellationToken)
+        public async Task<ImmutableList<SensorData>> GetSensorEntriesAsync(CancellationToken cancellationToken)
         {
-            var messages = await apiClient.GetAsync<List<JMRIMessage<RosterEntryData>>>(ServiceName, cancellationToken);
+            var messages = await apiClient.GetAsync<List<JMRIMessage<SensorData>>>(ServiceName, cancellationToken);
             if (messages == null)
-                return ImmutableList<RosterEntryData>.Empty;
+                return ImmutableList<SensorData>.Empty;
 
             var entries = messages
                 .Select(x => x.Data)
