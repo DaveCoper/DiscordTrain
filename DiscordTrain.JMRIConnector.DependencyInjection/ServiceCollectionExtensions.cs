@@ -18,10 +18,16 @@ public static class ServiceCollectionExtensions
         services.Configure<JMRIConnectorOptions>(configuration.GetSection(JMRIConnectorOptions.OptionsKey));
 
         // register commands
-        services.AddKeyedScoped<IListRosterCommand>(serviceKey, (serviceProvider, key) =>
+        services.AddKeyedScoped<IListTrainsCommand>(serviceKey, (serviceProvider, key) =>
         {
             var rosterService = serviceProvider.GetRequiredKeyedService<IRosterService>(key);
-            return new Commands.ListRosterCommand(rosterService);
+            return new Commands.ListTrainsCommand(rosterService);
+        });
+
+        services.AddKeyedScoped<IListSensorsCommand>(serviceKey, (serviceProvider, key) =>
+        {
+            var sensorService = serviceProvider.GetRequiredKeyedService<ISensorService>(key);
+            return new Commands.ListSensorsCommand(sensorService);
         });
 
         // register services
@@ -30,7 +36,13 @@ public static class ServiceCollectionExtensions
             var apiClient = serviceProvider.GetRequiredKeyedService<IJMRIWebApiClient>(key);
             return new RosterService(apiClient);
         });
-        
+
+        services.AddKeyedScoped<ISensorService>(serviceKey, (serviceProvider, key) =>
+        {
+            var apiClient = serviceProvider.GetRequiredKeyedService<IJMRIWebApiClient>(key);
+            return new SensorService(apiClient);
+        });
+
         services.AddKeyedScoped<IJMRIWebApiClient>(serviceKey, (serviceProvider, key) =>
         {
             var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();

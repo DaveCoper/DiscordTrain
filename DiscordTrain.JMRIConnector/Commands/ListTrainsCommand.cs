@@ -8,19 +8,19 @@ using DiscordTrain.JMRIConnector.WebApiServices;
 
 namespace DiscordTrain.JMRIConnector.Commands;
 
-public class ListRosterCommand(IRosterService rosterService) : JmriCommand, IListRosterCommand
+public class ListTrainsCommand(IRosterService rosterService) : JmriCommand, IListTrainsCommand
 {
-    public async Task<ImmutableList<IRosterEntry>> ListRosterAsync(CancellationToken cancellationToken)
+    public async Task<ImmutableList<ITrain>> GetTrainRosterAsync(CancellationToken cancellationToken)
     {
         var roster = await rosterService.GetRosterEntriesAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        return roster.Select(x => new RosterEntry
+        return roster.Select(x => new Train
         {
             Id = GetFormatedId(x),
             Name = x.Name ?? string.Empty,
             SmallIcon = x.Image
-        }).ToImmutableList<IRosterEntry>();
+        }).ToImmutableList<ITrain>();
     }
 
     private string GetFormatedId(RosterEntryData x)

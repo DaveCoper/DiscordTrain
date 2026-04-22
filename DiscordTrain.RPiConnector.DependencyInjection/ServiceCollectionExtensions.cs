@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
         });
 
         // register commands
-        services.AddKeyedSingleton<IListRosterCommand, ListRosterCommand>(serviceKey);
+        services.AddKeyedSingleton<IListTrainsCommand, ListTrainsCommand>(serviceKey);
         return services;
     }
 }

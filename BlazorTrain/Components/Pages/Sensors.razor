@@ -1,18 +1,36 @@
-﻿@page "/roster"
+﻿@page "/sensors"
 
+@using CommunityToolkit.Mvvm.Messaging
 @using DiscordTrain.Common.Commands
+@using DiscordTrain.Common.Messages
 @using DiscordTrain.Common.Model
 
+<PageTitle>Sensors</PageTitle>
 
-<h3>Roster</h3>
-<MudTable T="IRosterEntry" Items="tableData" Hover="true">
+<h3>Sensors</h3>
+<MudTable T="ISensorEntry" Items="tableData" Hover="true">
     <HeaderContent>
-        <MudTh>Engine Id</MudTh>
+        <MudTh>Sensor Id</MudTh>
         <MudTh>Name</MudTh>
+        <MudTh>State</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Guild Id">@context.Id</MudTd>
-        <MudTd DataLabel="User Id">@context.Name</MudTd>
+        <MudTd DataLabel="Sensor Id">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="State">
+            @switch (context.State)
+            {
+                case SensorState.Active:
+                    <MudChip T=string Color="Color.Success">Active</MudChip>
+                    break;
+                case SensorState.Inactive:
+                    <MudChip T=string Color="Color.Error">Inactive</MudChip>
+                    break;
+                case SensorState.Unknown:
+                    <MudChip T=string Color="Color.Default">Unknown</MudChip>
+                    break;
+            }
+        </MudTd>
     </RowTemplate>
 </MudTable>
 @code {
@@ -20,19 +38,52 @@
     [Inject]
     IServiceScopeFactory ServiceScopeFactory { get; set; } = null!;
 
-    List<IRosterEntry> tableData = new List<IRosterEntry>();
+    [Inject]
+    IMessenger Messenger { get; set; } = null!;
+
+    List<SensorEntry> tableData = [];
 
     override protected async Task OnInitializedAsync()
     {
+        await ReloadGridData(CancellationToken.None);
+        this.Messenger.Register<Sensors, SensorStateChanged>(this, OnSensorChanged);
+    }
+
+    private static async void OnSensorChanged(Sensors recepient, SensorStateChanged message)
+    {
+        await recepient.InvokeAsync(async () =>
+        {
+           await recepient.UpdateSensor(message);
+        });
+    }
+
+    private async ValueTask UpdateSensor(SensorStateChanged message)
+    {
+        var sensor = this.tableData.Find(x => x.Id == message.SensorId);
+        if (sensor != null)
+        {
+            sensor.State = message.SensorState;
+        }
+        else
+        {
+            await this.ReloadGridData(CancellationToken.None);
+        }
+
+        this.StateHasChanged();
+    }
+
+    private async ValueTask ReloadGridData(CancellationToken cancellationToken)
+    {
         await using var scope = ServiceScopeFactory.CreateAsyncScope();
+        var tasks = scope.ServiceProvider.GetKeyedServices<IListSensorsCommand>(KeyedService.AnyKey)
+            .Select(x => x.ListSensorsAsync(cancellationToken));
 
-        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-        var tasks = scope.ServiceProvider.GetKeyedServices<IListRosterCommand>(KeyedService.AnyKey)
-            .Select(x => x.ListRosterAsync(cancellationTokenSource.Token));
-        
         var results = await Task.WhenAll(tasks);
-        this.tableData = results.SelectMany(x => x).ToList();
+        this.tableData = results
+            .SelectMany(x => x)
+            .Select(x => new SensorEntry { Id = x.Id, Name = x.Name, State = x.State })
+            .ToList();
+
     }
 
 }

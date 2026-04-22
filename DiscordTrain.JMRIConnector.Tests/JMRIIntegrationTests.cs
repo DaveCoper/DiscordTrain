@@ -30,7 +30,6 @@ namespace DiscordTrain.JMRIConnector.Tests
             var connection = new JMRIWebApiClient(
                 httpClient,
                 serializer,
-                serverOptions,
                 loggerFactory.CreateLogger<JMRIWebApiClient>());
 
             var rosterService = new RosterService(connection);

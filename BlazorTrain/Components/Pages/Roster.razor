@@ -3,9 +3,10 @@
 @using DiscordTrain.Common.Commands
 @using DiscordTrain.Common.Model
 
+<PageTitle>Roster</PageTitle>
 
 <h3>Roster</h3>
-<MudTable T="IRosterEntry" Items="tableData" Hover="true">
+<MudTable T="ITrain" Items="tableData" Hover="true">
     <HeaderContent>
         <MudTh>Icon</MudTh>
         <MudTh>Engine Id</MudTh>
@@ -27,7 +28,7 @@
     [Inject]
     IServiceScopeFactory ServiceScopeFactory { get; set; } = null!;
 
-    List<IRosterEntry> tableData = new List<IRosterEntry>();
+    List<ITrain> tableData = [];
 
     override protected async Task OnInitializedAsync()
     {
@@ -35,8 +36,8 @@
 
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-        var tasks = scope.ServiceProvider.GetKeyedServices<IListRosterCommand>(KeyedService.AnyKey)
-            .Select(x => x.ListRosterAsync(cancellationTokenSource.Token));
+        var tasks = scope.ServiceProvider.GetKeyedServices<IListTrainsCommand>(KeyedService.AnyKey)
+            .Select(x => x.GetTrainRosterAsync(cancellationTokenSource.Token));
         
         var results = await Task.WhenAll(tasks);
         this.tableData = results.SelectMany(x => x).ToList();

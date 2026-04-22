@@ -15,8 +15,8 @@ namespace BlazorTrain.Controllers
         public async Task<IActionResult> GetImage(string id, [FromServices] IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
             var tasks = serviceProvider
-                .GetKeyedServices<IListRosterCommand>(KeyedService.AnyKey)
-                .Select(x => x.ListRosterAsync(cancellationToken));
+                .GetKeyedServices<IListTrainsCommand>(KeyedService.AnyKey)
+                .Select(x => x.GetTrainRosterAsync(cancellationToken));
 
             var results = await Task.WhenAll(tasks);
             var entries = results.SelectMany(x => x).ToList();

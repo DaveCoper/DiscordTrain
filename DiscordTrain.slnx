@@ -25,5 +25,8 @@
         <BuildType Solution="Debug Without HW|*" Project="Debug" />
     </Project>
     <Project Path="DiscordTrain.Common/DiscordTrain.Common.csproj" />
+    <Project Path="DiscordTrain.Tests/DiscordTrain.Tests.csproj" Id="decad786-52d4-4872-afa5-daf4a6d0b6a6">
+        <BuildType Solution="Debug Without HW|*" Project="Debug" />
+    </Project>
     <Project Path="DiscordTrain/DiscordTrain.csproj" />
 </Solution>

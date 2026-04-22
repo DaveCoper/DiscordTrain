@@ -1,6 +1,6 @@
 ﻿namespace DiscordTrain.Common.Model;
 
-public interface IRosterEntry
+public interface ITrain
 {
     string Id { get; }
     string Name { get; }
